@@ -72,8 +72,8 @@ class UserCreatedEvent extends BaseEvent {
 }
 
 class AppartementCreatedEvent extends BaseEvent{
-    constructor(eventId, publishedTime,_id,owner, title,wilaya,comun,street,photos, description, perks, extraInfo, checkIn,
-        checkOut, maxGuests, price, price_month, reservedDates){
+    constructor(eventId, publishedTime,_id,owner, title,wilaya,comun,street,photos, description, perks,apartementType, extraInfo, checkIn,
+        checkOut, maxGuests, price,  reservedDates){
                // Call base constructor
         super(eventId, publishedTime);
         
@@ -90,12 +90,13 @@ class AppartementCreatedEvent extends BaseEvent{
         this.photos= photos;
         this.description= description;
         this.perks= perks;
+        this.apartementType= apartementType;
         this.extraInfo=extraInfo;
         this.checkIn=checkIn;
         this.checkOut=checkOut;
         this.maxGuests=maxGuests;
         this.price=price;
-        this.price_month=price_month;
+        
         this.reservedDates= reservedDates
          }
 

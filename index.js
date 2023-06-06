@@ -80,7 +80,7 @@ require('dotenv').config();
 const imageDownloader = require('image-downloader');
 const Place = require('./modeles/AppartementModel.js');
 const cors = require('cors') //permet la comminucation  entre les deux addr du front et back
-const feedBack= require ('./modeles/FeedBack.js')
+const FeedBack= require ('./modeles/FeedBack.js')
 
 
 
@@ -123,18 +123,18 @@ app.get('/test', (req, res) => {
   })
 })
 
-app.post('/appartement/places', async (req, res) => {
+app.post('/places', async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   console.log("bdd connected")
   const {owner,
     title,wilaya,comun,street, addedPhotos, description, price,
-    perks,apartementType, extraInfo, checkIn, checkOut, maxGuests,price_month
+    perks,apartementType, extraInfo, checkIn, checkOut, maxGuests
   } = req.body;
  
     const placeDoc = await Place.create({
       owner,
       title,wilaya,comun,street, photos: addedPhotos, description,
-      perks, apartementType ,extraInfo, checkIn, checkOut, maxGuests, price,price_month 
+      perks, apartementType ,extraInfo, checkIn, checkOut, maxGuests
     });
   console.log (placeDoc)
       res.json(placeDoc); 
@@ -148,7 +148,7 @@ app.post('/appartement/places', async (req, res) => {
      await eventBus.Publish(new events.AppartementCreatedEvent(
         NewGUID(),(new Date()).toISOString(), _id,owner,
         title,wilaya,comun,street, photos, description, perks,apartementType,
-        extraInfo,  checkIn, checkOut, maxGuests,price,price_month, reservedDates
+        extraInfo,  checkIn, checkOut, maxGuests,price, reservedDates
       
         )
       )
@@ -157,12 +157,12 @@ app.post('/appartement/places', async (req, res) => {
 })
 
 
-app.get('/appartement/places/all', async (req, res) => {
+app.get('/places/all', async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   res.json(await Place.find());
 });
 
-app.get('/appartement/places/:id', async (req, res) => {
+app.get('/places/:id', async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   const { id } = req.params;
   console.log(id)
@@ -173,9 +173,9 @@ app.get('/appartement/places/:id', async (req, res) => {
 ///////////////////////get user places/////////////////////////// 
 
 
-app.get('/appartement/user-places/:owner', async (req, res) => {
+app.get('/user-places/:owner', async (req, res) => {
 
-  const { owner } = req.params;
+  const  owner  = req.params.owner;
   console.log(typeof( owner))
 
   mongoose.connect(process.env.MONGO_URL);
@@ -185,21 +185,30 @@ app.get('/appartement/user-places/:owner', async (req, res) => {
 
 
 
-////////////////////////////feedBack////////////////////
+//////////////////////////// add feedBack ////////////////////
 
-app.post('/appartement/feedBack', async(req, res)=>{
+app.post('/feedBack', async(req, res)=>{
   mongoose.connect(process.env.MONGO_URL);
-  const {apartementId,user,content}=  req.body;
+  
+  const id =  req.body.id;
+  const user = req.body.user;
+  const feedBack = req.body.feedBack;
+  console.log(req.body)
 
-const feedBack = await feedBack.create({
-  
-  
-    });
-  console.log (placeDoc)
-      res.json(placeDoc); 
+ const fb = await FeedBack.create({
+  id, user, feedBack });
+
+      res.json(fb); 
+      console.log (fb) 
 })
-
-
+ 
+////////////////// get feedBack by id ///////////////
+app.get('/feedBack/:id', async(req,res) =>{
+  const id = req.params.id
+ console.log (typeof(id))
+  mongoose.connect(process.env.MONGO_URL);
+res.json( await  FeedBack.find({id : id}))
+})
 
 
 
