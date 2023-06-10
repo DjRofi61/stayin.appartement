@@ -106,21 +106,56 @@ class AppartementCreatedEvent extends BaseEvent{
 }
 
 class AppartementUpdatedEvent extends BaseEvent{
-    constructor(eventId, publishedTime,idAppartement, reservedDates){
+    constructor(eventId, publishedTime,_id,owner, title,wilaya,comun,street,photos, description, perks,apartementType, extraInfo, checkIn,
+        checkOut, maxGuests, price,  reservedDates){
+               // Call base constructor
         super(eventId, publishedTime);
-        if (IsEmpty(idAppartement))
-        throw Error("ERROR: Empty field");
+        
 
+        if (IsEmpty(title))
+            throw Error("ERROR: Empty field");
 
-        this.idAppartement=idAppartement;
+        this._id=_id;
+        this.owner= owner;
+        this.title=title;
+        this.wilaya=wilaya;
+        this.comun = comun;
+        this.street= street
+        this.photos= photos;
+        this.description= description;
+        this.perks= perks;
+        this.apartementType= apartementType;
+        this.extraInfo=extraInfo;
+        this.checkIn=checkIn;
+        this.checkOut=checkOut;
+        this.maxGuests=maxGuests;
+        this.price=price;
+        
         this.reservedDates= reservedDates
-    }
+         }
 
-    Handle() {
-        // TODO: Add data to the database
-    }
+         Handle() {
+            // TODO: Add data to the database
+        }
 }
 
+
+
+class AppartementDeletedEvent extends BaseEvent{
+    constructor(eventId, publishedTime,_id){
+               // Call base constructor
+        super(eventId, publishedTime);
+        
+
+       
+        this._id=_id;
+        
+         }
+
+         Handle() {
+            // TODO: Add data to the database
+        }
+}
 
 
 class ReservationCratedEvent extends BaseEvent{
@@ -162,4 +197,5 @@ module.exports.BaseEvent=BaseEvent;
 module.exports.UserCreatedEvent=UserCreatedEvent;
 module.exports.ReservationCratedEvent=ReservationCratedEvent;
 module.exports.AppartementCreatedEvent=AppartementCreatedEvent;
-module.exports.AppartementUpdatedEvent =AppartementUpdatedEvent 
+module.exports.AppartementUpdatedEvent =AppartementUpdatedEvent ;
+module.exports.AppartementDeletedEvent =AppartementDeletedEvent ;

@@ -15,7 +15,7 @@ const placeSchema = new mongoose.Schema({
   checkOut: Number,
   maxGuests: Number,
   price: Number,
- 
+  somme:Number,
   reservedDates: [{
     type: Date,
     default: []
