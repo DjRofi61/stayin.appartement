@@ -123,14 +123,14 @@ app.post('/places', async (req, res) => {
   mongoose.connect(process.env.MONGO_URL);
   console.log("bdd connected")
   const {owner,
-    title,wilaya,comun,street, addedPhotos, description, price,
-    perks,apartementType, extraInfo, checkIn, checkOut, maxGuests
+    title,wilaya,comun,street, addedPhotos, description,
+    perks,apartementType, extraInfo, checkIn, checkOut, maxGuests,price
   } = req.body;
  
     const placeDoc = await Place.create({
       owner,
       title,wilaya,comun,street, photos: addedPhotos, description,
-      perks, apartementType ,extraInfo, checkIn, checkOut, maxGuests
+      perks, apartementType ,extraInfo, checkIn, checkOut, maxGuests,price,somme: 0
     });
   console.log (placeDoc)
       res.json(placeDoc); 
@@ -175,12 +175,62 @@ app.get('/user-places/:owner', async (req, res) => {
   console.log(typeof( owner))
 
   mongoose.connect(process.env.MONGO_URL);
-  res.json(await Place.find({owner : owner }));
- // console.log(Place.find({owner: owner}))
+  const placesOwner= await Place.find({owner : owner })
+  const sum = placesOwner.reduce((accumulator, place) => accumulator + place.somme, 0);
+  res.json({ places: placesOwner, sum });
+
 });
 
+////////////////////////////////update appartement/////////////////////////////
+
+app.put('/places', async (req,res) => {
+  mongoose.connect(process.env.MONGO_URL);
+  
+  const {
+    id, owner,title,wilaya,comun,street,addedPhotos,description,
+    perks,extraInfo,apartementType,checkIn,checkOut,maxGuests,price,
+  } = req.body;
+  
+    const placeDoc = await Place.findById(id);
+     placeDoc.set({
+      owner,
+      title,wilaya,comun,street, photos: addedPhotos, description,
+      perks,extraInfo, apartementType , checkIn, checkOut, maxGuests,price
+      });
+      await placeDoc.save();
+      res.json('ok');
+
+          /****publish appartement updated event****/
 
 
+          const _id=placeDoc.id;
+          const photos=placeDoc.photos;
+          const reservedDates=placeDoc.reservedDates;
+          await eventBus.Publish(new events.AppartementUpdatedEvent(
+            NewGUID(),(new Date()).toISOString(), _id,owner,
+            title,wilaya,comun,street, photos, description, perks,apartementType,
+            extraInfo,  checkIn, checkOut, maxGuests,price, reservedDates
+          
+            )
+          )
+
+    })
+ 
+
+    ///////////////////////////////deleeteee appartementttttttttt/////////////////////////
+
+     app.delete('/places/:id', async (req, res) => {
+      mongoose.connect(process.env.MONGO_URL);
+      const { id } = req.params;
+      console.log(id)
+      res.json(await Place.findOneAndDelete({_id: id}))
+         
+        /**************publish appartement deleted event ***********/
+        await eventBus.Publish(new events.AppartementDeletedEvent(
+          NewGUID(),(new Date()).toISOString(), id ) )
+
+
+    }) 
 //////////////////////////// add feedBack ////////////////////
 
 app.post('/feedBack', async(req, res)=>{
@@ -196,6 +246,7 @@ app.post('/feedBack', async(req, res)=>{
 
       res.json(fb); 
       console.log (fb) 
+      FeedBack.fi
 })
  
 ////////////////// get feedBack by id ///////////////
@@ -220,10 +271,19 @@ res.json( await  FeedBack.find({id : id}))
      /*  if(message.Type == "UserCreatedEvent")
         db.InsertUser(message.body); */
         if(message.Type == "ReservationCreatedEvent"){
-        await Place.findByIdAndUpdate(message.body.appartement, {reservedDates : message.body.reservedDates}); 
+          console.log(message.body.price)
+          console.log(message.body.appartement)
+        const sommeAppartement = await Place.findByIdAndUpdate(message.body.appartement,  { $inc: { somme: message.body.price } },{ new: true }); 
+         console.log( "sooooooooommmmmmmee" + sommeAppartement)
+        
 
-        eventBus.Publish(new events.AppartementUpdatedEvent( NewGUID(),(new Date()).toISOString(),
-          message.body.appartement,  message.body.reservedDates))
+        
+
+
+
+
+       /*  eventBus.Publish(new events.AppartementUpdatedEvent( NewGUID(),(new Date()).toISOString(),
+          message.body.appartement,  message.body.reservedDates)) */
       
       }
 
