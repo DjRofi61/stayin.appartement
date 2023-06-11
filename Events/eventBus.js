@@ -1,10 +1,12 @@
 var amqp = require('amqplib');
 var db = require("./database.js");
 var events = require("./events.js");
+require('dotenv').config();
 
+const url = process.env.RABBITMQ
 
-// The url to the rabbitMQ Bus
-const url = 'amqps://hwtyemoo:cglmvY7Sbql86_WX2wZwk_DhamrqY-5_@goose.rmq2.cloudamqp.com/hwtyemoo';
+// const url = 'amqps://hwtyemoo:cglmvY7Sbql86_WX2wZwk_DhamrqY-5_@goose.rmq2.cloudamqp.com/hwtyemoo';
+
 
 // The name of the queue to publish messages to
 const queueName = 'DefaultQueue';
